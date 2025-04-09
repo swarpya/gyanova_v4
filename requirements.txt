@@ -1,6 +1,5 @@
 groq
 dotenv
-serpapi
 pytz
 geopy
 timezonefinder

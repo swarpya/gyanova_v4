@@ -75,25 +75,46 @@ __all__ = ['findDateTime', 'web_search', 'calculate']
 from tools import findDateTime, web_search, calculate
 ```
 
-That's it! Your new tool is now integrated into the system and will be available for the AI to use.
+---
+
+## ✅ Email Tool Setup Instructions
+
+To enable email functionality, you must configure SMTP credentials in a `.env` file.
+
+### 1. Add SMTP settings to `.env`
+```env
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+```
+
+### 2. How to Get a Gmail App Password
+1. Enable 2-Step Verification on your Google account:
+   - Go to https://myaccount.google.com/security
+   - Under "Signing in to Google", enable **2-Step Verification**
+
+2. Generate an App Password:
+   - Visit: https://myaccount.google.com/apppasswords
+   - Select "Mail" and your device (or choose "Other")
+   - Click **Generate**, and Google will give you a 16-character password
+   - Use this password in `.env` as `SMTP_PASSWORD`
+
+---
 
 ## Output Example
 
-**User Query:** Who is Swaroop Ingavale and what time it is now at Kolhapur?
+**User Query:** Send email to pradeepmokashi12@gmail.com with subject "Hello" and body "This is a test email."
 
 **--- Task Breakdown ---**
 ```
 [
   {
-    "tool_name": "web_search",
+    "tool_name": "send_email",
     "parameters": {
-      "query": "Swaroop Ingavale"
-    }
-  },
-  {
-    "tool_name": "findDateTime",
-    "parameters": {
-      "location": "Kolhapur"
+      "to": "pradeepmokashi12@gmail.com",
+      "subject": "Hello",
+      "body": "This is a test email."
     }
   }
 ]
@@ -101,25 +122,20 @@ That's it! Your new tool is now integrated into the system and will be available
 
 **--- Executing Tasks Sequentially ---**
 ```
-Task 1: Executing web_search with parameters {'query': 'Swaroop Ingavale'}
-Result: [{'position': 1, 'title': 'Swaroop Ingavale - Program Tutor - Georgian College', 'link': 'https://ca...
-Task 2: Executing findDateTime with parameters {'location': 'Kolhapur'}
-Result: {'location': 'Kolhapur, Karvir, Kolhapur, Maharashtra, 416003, India', 'timezone': 'Asia/Kolkata', '...
+Task 1: Executing send_email with parameters {'to': 'pradeepmokashi12@gmail.com', 'subject': 'Hello', 'body': 'This is a test email.'}
+Result: {'status': 'success', 'message': 'Email sent to pradeepmokashi12@gmail.com'}
 ```
 
 **--- Generating Final Response ---**
 
 **--- Results from Each Tool ---**
 ```
-Task 1: web_search
-Parameters: {'query': 'Swaroop Ingavale'}
-Result: [{'position': 1, 'title': 'Swaroop Ingavale - Program Tutor - Georgian College', 'link': 'https://ca.linkedin.com/in/swaroop-ingavale-31142619b', 'red...
-Task 2: findDateTime
-Parameters: {'location': 'Kolhapur'}
-Result: {'location': 'Kolhapur, Karvir, Kolhapur, Maharashtra, 416003, India', 'timezone': 'Asia/Kolkata', 'current_datetime': '2025-04-08 23:11:41', 'timesta...
+Task 1: send_email
+Parameters: {'to': 'pradeepmokashi12@gmail.com', 'subject': 'Hello', 'body': 'This is a test email.'}
+Result: {'status': 'success', 'message': 'Email sent to pradeepmokashi12@gmail.com'}
 ```
 
 **--- Final Answer ---**
 
-Swaroop Ingavale is an AI graduate student from Georgian College, and he has built a tool that uses deep reinforcement learning. He is also a Program Tutor at Georgian College.
-The current time at Kolhapur is 2025-04-08 23:11:41.
+Email successfully sent to pradeepmokashi12@gmail.com with subject "Hello".
+
