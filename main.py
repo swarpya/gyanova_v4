@@ -1,7 +1,7 @@
 from core.agent import process_user_query
 
 def main():
-    user_query = "Who is Swaroop Ingavale and what time it is now at Kolhapur?"
+    user_query = "what is weather in nalasopara, maharashtra"
     
     print("User Query:", user_query)
     results, final_answer = process_user_query(user_query)

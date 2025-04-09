@@ -1,4 +1,4 @@
-from tools import findDateTime, web_search
+from tools import findDateTime, web_search, get_weather
 
 # Define the tools with their exact names for reference
 # This list is what will be presented to the LLM so it knows what tools are available
@@ -15,6 +15,13 @@ AVAILABLE_TOOLS = [
         "description": "This function returns the current date",
         "parameters": {
             "location": "string - The Location required for determining date and time"
+        }
+    },
+    {
+        "name": "get_weather",
+        "description": "This function returns the current weather information",
+        "parameters": {
+            "location": "string - The Location required for determining weather"
         }
     }
 ]
@@ -55,6 +62,23 @@ tools = [
                 "required": ["location"],
             },
         },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "This function returns the current weather information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The Location required for determining weather",
+                    }
+                },
+                "required": ["location"],
+            },
+        },
     }
 ]
 
@@ -62,4 +86,5 @@ tools = [
 available_functions = {
     "web_search": web_search,
     "findDateTime": findDateTime,
+    "get_weather": get_weather,
 }
