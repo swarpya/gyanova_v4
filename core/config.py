@@ -1,4 +1,4 @@
-from tools import findDateTime, web_search, get_weather
+from tools import findDateTime, web_search, get_weather, send_email
 
 # Define the tools with their exact names for reference
 # This list is what will be presented to the LLM so it knows what tools are available
@@ -23,7 +23,16 @@ AVAILABLE_TOOLS = [
         "parameters": {
             "location": "string - The Location required for determining weather"
         }
+    },
+    {
+    "name": "send_email",
+    "description": "Send an email with subject and body",
+    "parameters": {
+        "to": "string - Email address of the recipient",
+        "subject": "string - Subject of the email",
+        "body": "string - Body content of the email"
     }
+},
 ]
 
 # Define the tools configuration for the Groq model
@@ -79,7 +88,32 @@ tools = [
                 "required": ["location"],
             },
         },
+    },
+   {
+    "type": "function",
+    "function": {
+        "name": "send_email",
+        "description": "Send an email with subject and body",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "to": {
+                    "type": "string",
+                    "description": "Email address of the recipient"
+                },
+                "subject": {
+                    "type": "string",
+                    "description": "Subject of the email"
+                },
+                "body": {
+                    "type": "string",
+                    "description": "Body content of the email"
+                }
+            },
+            "required": ["to", "subject", "body"]
+        }
     }
+},
 ]
 
 # Available functions mapping - connects function names to actual Python functions
@@ -87,4 +121,5 @@ available_functions = {
     "web_search": web_search,
     "findDateTime": findDateTime,
     "get_weather": get_weather,
+    "send_email": send_email,
 }

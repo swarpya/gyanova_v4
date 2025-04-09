@@ -1,7 +1,7 @@
 from core.agent import process_user_query
 
 def main():
-    user_query = "what is weather in nalasopara, maharashtra"
+    user_query = "send mail to swaroopingavale73@gmail.com with subject 'Test' and body 'This is a test email'"
     
     print("User Query:", user_query)
     results, final_answer = process_user_query(user_query)
