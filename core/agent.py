@@ -1,7 +1,7 @@
+import os
 import json
 import re
 from groq import Groq
-import os
 from dotenv import load_dotenv
 from core.config import AVAILABLE_TOOLS, tools, available_functions
 
@@ -11,7 +11,6 @@ load_dotenv()
 # Initialize Groq client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-
 
 def process_user_query(user_query):
     # Step 1: Ask the model to analyze the query and break it down into subtasks
@@ -27,6 +26,14 @@ These are the ONLY tools available to you:
 For each task, you MUST specify a tool_name that EXACTLY matches one of the available tool names listed above.
 Format your response as a JSON array of task objects, where each task has 'tool_name' and 'parameters' fields.
 The tool_name MUST be one of the exact tool names provided.
+
+IMPORTANT: If a task needs data from previous tasks, include a "requires" field with a list of task indices it depends on.
+Example: 
+[
+  {{"tool_name": "get_weather", "parameters": {{"location": "Toronto"}}}},
+  {{"tool_name": "send_email", "parameters": {{"to": "example@example.com", "subject": "Weather Report"}}, "requires": [0]}}
+]
+
 DO NOT invent or hallucinate tool names that aren't in the list."""},
         {"role": "user", "content": f"Break down this query into separate subtasks: '{user_query}'"}
     ]
@@ -83,16 +90,66 @@ DO NOT invent or hallucinate tool names that aren't in the list."""},
     # Step 2: Execute each task sequentially and collect results
     print("\n--- Executing Tasks Sequentially ---")
     all_results = []
+    task_results_by_index = {}  # Store results by task index for context sharing
     
     for i, task in enumerate(tasks):
         tool_name = task["tool_name"]
-        parameters = task["parameters"]
+        parameters = task["parameters"].copy()  # Create a copy to modify if needed
+        
+        # Check if this task requires data from previous tasks
+        if "requires" in task:
+            context_data = {}
+            for req_idx in task["requires"]:
+                if req_idx < i and req_idx in task_results_by_index:  # Ensure the required task has been processed
+                    context_data[f"task_{req_idx+1}_result"] = task_results_by_index[req_idx]
+            
+            # If we have context data, we need to prepare it for the current task
+            if context_data:
+                print(f"Task {i+1} requires data from previous tasks: {task['requires']}")
+                
+                # Set up model to process the context and update parameters
+                context_prompt = [
+                    {"role": "system", "content": f"""You are a helpful assistant that processes task results and updates parameters for the next task.
+                    
+Previous task results: {json.dumps(context_data, indent=2)}
+
+Current task: {json.dumps(task, indent=2)}
+
+Your job is to update the parameters for the current task based on the results of previous tasks.
+Return only a JSON object with the updated parameters. Do not include any explanations."""},
+                ]
+                
+                context_response = client.chat.completions.create(
+                    model=model,
+                    messages=context_prompt,
+                    max_completion_tokens=4096
+                )
+                
+                try:
+                    updated_params_text = context_response.choices[0].message.content
+                    # Extract JSON from the response
+                    json_match = re.search(r'\{.*\}', updated_params_text, re.DOTALL)
+                    if json_match:
+                        updated_params = json.loads(json_match.group(0))
+                        parameters.update(updated_params)
+                        print(f"Updated parameters based on previous task results: {parameters}")
+                    else:
+                        # If no JSON is found, try to use the context directly
+                        parameters["context"] = context_data
+                        print("Added raw context data to parameters")
+                except Exception as e:
+                    print(f"Error updating parameters with context: {str(e)}")
+                    # Fallback: Add context as a separate parameter
+                    parameters["context"] = context_data
         
         print(f"Task {i+1}: Executing {tool_name} with parameters {parameters}")
         
         # Execute the tool function
         function_to_call = available_functions[tool_name]
         tool_result = function_to_call(**parameters)
+        
+        # Store the result for potential future use
+        task_results_by_index[i] = tool_result
         
         # Add the structured result to our collection
         task_result = {

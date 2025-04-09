@@ -1,7 +1,7 @@
 from core.agent import process_user_query
 
 def main():
-    user_query = "send mail to swaroopingavale73@gmail.com with subject 'Test' and body 'This is a test email'"
+    user_query = "give detailed resignation letter from software engineering job employee and send that to swaroopingavale73@gmail.com"
     
     print("User Query:", user_query)
     results, final_answer = process_user_query(user_query)
