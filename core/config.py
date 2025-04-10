@@ -1,4 +1,4 @@
-from tools import findDateTime, web_search, get_weather, send_email
+from tools import findDateTime, web_search, get_weather, send_email, translate_text
 
 # Define the tools with their exact names for reference
 # This list is what will be presented to the LLM so it knows what tools are available
@@ -33,6 +33,15 @@ AVAILABLE_TOOLS = [
         "body": "string - Body content of the email"
     }
 },
+{
+        "name": "translate_text",
+        "description": "Translate text from one language to another",
+        "parameters": {
+            "text": "string - The text to translate",
+            "target_language": "string - Language code to translate to (e.g., 'es', 'fr', 'de', 'ja')",
+            "source_language": "string - (Optional) Language code to translate from. Default is 'auto' for auto-detection"
+        }
+    }
 ]
 
 # Define the tools configuration for the Groq model
@@ -114,6 +123,31 @@ tools = [
         }
     }
 },
+{
+        "type": "function",
+        "function": {
+            "name": "translate_text",
+            "description": "Translate text from one language to another",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "The text to translate"
+                    },
+                    "target_language": {
+                        "type": "string",
+                        "description": "Language code to translate to (e.g., 'es', 'fr', 'de', 'ja')"
+                    },
+                    "source_language": {
+                        "type": "string",
+                        "description": "Language code to translate from. Default is 'auto' for auto-detection"
+                    }
+                },
+                "required": ["text", "target_language"]
+            },
+        }
+},
 ]
 
 # Available functions mapping - connects function names to actual Python functions
@@ -122,4 +156,5 @@ available_functions = {
     "findDateTime": findDateTime,
     "get_weather": get_weather,
     "send_email": send_email,
+    "translate_text": translate_text,
 }

@@ -109,15 +109,20 @@ DO NOT invent or hallucinate tool names that aren't in the list."""},
                 
                 # Set up model to process the context and update parameters
                 context_prompt = [
-                    {"role": "system", "content": f"""You are a helpful assistant that processes task results and updates parameters for the next task.
-                    
+    {"role": "system", "content": f"""You are a helpful assistant that processes task results and updates parameters for the next task.
+
 Previous task results: {json.dumps(context_data, indent=2)}
 
 Current task: {json.dumps(task, indent=2)}
 
-Your job is to update the parameters for the current task based on the results of previous tasks.
+IMPORTANT: If this task needs to use text content from a previous task result, extract the FULL TEXT CONTENT from the previous result and use it directly.
+DO NOT just refer to "the result from task X" - use the actual content.
+
+For translation tasks: use the full text content as the 'text' parameter.
+For email tasks: use the full translated content as the 'body' parameter.
+
 Return only a JSON object with the updated parameters. Do not include any explanations."""},
-                ]
+]
                 
                 context_response = client.chat.completions.create(
                     model=model,

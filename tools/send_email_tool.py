@@ -7,9 +7,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def send_email(to: str, subject: str, body: str):
+def send_email(to: str = None, subject: str = None, body: str = None, **kwargs):
     """Send an email with subject and body to the specified recipient."""
     try:
+        # Check if parameters are nested in a 'parameters' key
+        if 'parameters' in kwargs and isinstance(kwargs['parameters'], dict):
+            # Extract nested parameters if present
+            params = kwargs['parameters']
+            to = params.get('to', to)
+            subject = params.get('subject', subject)
+            body = params.get('body', body)
+        
         smtp_server = os.getenv("SMTP_SERVER")
         smtp_port = int(os.getenv("SMTP_PORT", 587))
         smtp_user = os.getenv("SMTP_USER")
@@ -19,14 +27,13 @@ def send_email(to: str, subject: str, body: str):
         msg['From'] = smtp_user
         msg['To'] = to
         msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, 'plain', 'utf-8')) 
 
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
         server.login(smtp_user, smtp_password)
         server.send_message(msg)
         server.quit()
-        
         return {"status": "success", "message": f"Email sent to {to}"}
     
     except Exception as e:
