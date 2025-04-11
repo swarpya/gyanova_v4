@@ -29,13 +29,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Initialize STT and TTS models
-stt_model = get_stt_model()
-tts_model = get_tts_model()
+
 
 def process_audio_query(audio):
     """Process audio input using STT, agent system, and TTS for output"""
     # Convert audio to text using STT
+    stt_model = get_stt_model()
+    tts_model = get_tts_model()
     user_query = stt_model.stt(audio)
     print("User Query (from audio):", user_query)
     
@@ -61,6 +61,8 @@ def main():
     audio_mode = os.getenv("AUDIO_MODE", "False").lower() in ["true", "1", "yes"]
     
     if audio_mode:
+        # Initialize STT and TTS models
+
         # Audio mode: Set up the real-time communication stream
         print("Starting in audio mode...")
         stream = Stream(ReplyOnPause(process_audio_query), modality="audio", mode="send-receive")
