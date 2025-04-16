@@ -1,4 +1,4 @@
-from tools import findDateTime, web_search, get_weather, send_email, translate_text
+from tools import findDateTime, web_search, get_weather, send_email, translate_text, deep_web_search, code_execution
 
 # Define the tools with their exact names for reference
 # This list is what will be presented to the LLM so it knows what tools are available
@@ -8,6 +8,20 @@ AVAILABLE_TOOLS = [
         "description": "Search the web for information",
         "parameters": {
             "query": "string - The search query"
+        }
+    },
+    {
+        "name": "deep_web_search",
+         "description": "This tool is called if user required  deep web research on a topic and detail information of a topic ",
+        "parameters": {
+            "user_query": "string - The search query"
+        }
+    },
+    {
+        "name": "code_execution",
+        "description": "This tool is called if user required code execution, code debugging ",
+        "parameters": {
+            "user_query": "string - The code for execution or debugging"
         }
     },
     {
@@ -61,6 +75,40 @@ tools = [
                     }
                 },
                 "required": ["query"],
+            },
+        },
+    },
+     {
+        "type": "function",
+        "function": {
+            "name": "deep_web_search",
+            "description": "This tool is called if user required  deep web research on a topic",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_query": {
+                        "type": "string",
+                        "description": "The search query",
+                    }
+                },
+                "required": ["user_query"],
+            },
+        },
+    },
+     {
+        "type": "function",
+        "function": {
+            "name": "code_execution",
+            "description": "This tool is called if user required code execution, code debugging",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_query": {
+                        "type": "string",
+                        "description": "The code for execution or debugging",
+                    }
+                },
+                "required": ["user_query"],
             },
         },
     },
@@ -157,4 +205,7 @@ available_functions = {
     "get_weather": get_weather,
     "send_email": send_email,
     "translate_text": translate_text,
+    "deep_web_search" : deep_web_search,
+    "code_execution" : code_execution,
+
 }

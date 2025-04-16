@@ -73,7 +73,27 @@ def main():
         print("Starting in text mode...")
         user_query = input("Enter your query: ")
         if not user_query:
-            user_query = "Find the current weather in Ontario and email it to swaroopingavale73@gmail.com"
+            user_query = '''what is output of the following code:
+class Solution(object):
+    def threeSumClosest(self, nums, target):
+        nums.sort()
+        sm=float("inf")
+        for i in range(len(nums)-2):
+            j=i+1
+            k=len(nums)-1
+            while j<k:
+                csm=nums[i]+nums[j]+nums[k]
+                if abs(csm-target)<abs(sm-target):
+                    sm=csm
+                    
+                if csm<target:
+                    j+=1
+                elif csm>target:
+                    k-=1
+                else:
+                    return csm
+        return sm
+        '''
         
         results, final_answer = process_user_query(user_query)
         

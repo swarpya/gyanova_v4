@@ -4,6 +4,6 @@ from .search_tool import web_search
 from .weather_tool import get_weather
 from .send_email_tool import send_email
 from .translation_tool import translate_text
-
+from .agentic import deep_web_search, code_execution
 # Export all tools
-__all__ = ['findDateTime', 'web_search','get_weather','send_email','translate_text']
+__all__ = ['findDateTime', 'web_search','get_weather','send_email','translate_text', 'deep_web_search', 'code_execution']
