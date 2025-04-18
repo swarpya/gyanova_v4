@@ -20,7 +20,7 @@
 #     main()
 
 
-
+import numpy as np
 import os
 from core.agent import process_user_query
 from fastrtc import (ReplyOnPause, Stream, get_stt_model, get_tts_model)
@@ -29,13 +29,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-
+stt_model = get_stt_model()
+tts_model = get_tts_model()
 
 def process_audio_query(audio):
     """Process audio input using STT, agent system, and TTS for output"""
     # Convert audio to text using STT
-    stt_model = get_stt_model()
-    tts_model = get_tts_model()
+
     user_query = stt_model.stt(audio)
     print("User Query (from audio):", user_query)
     
@@ -56,6 +56,10 @@ def process_audio_query(audio):
     for audio_chunk in tts_model.stream_tts_sync(final_answer):
         yield audio_chunk
 
+def generate_audio(audio: tuple[int, np.ndarray], sample_rate=None):
+    for chunk in generate_audio(audio):
+        yield (sample_rate, chunk)
+
 def main():
     # Determine if we're running in audio mode or text mode
     audio_mode = os.getenv("AUDIO_MODE", "False").lower() in ["true", "1", "yes"]
@@ -66,7 +70,7 @@ def main():
         # Audio mode: Set up the real-time communication stream
         print("Starting in audio mode...")
         stream = Stream(ReplyOnPause(process_audio_query), modality="audio", mode="send-receive")
-        # stream.Fastphone()
+        stream.fastphone()
         # The Stream object handles the audio I/O
     else:
         # Text mode: Process a text query directly
