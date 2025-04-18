@@ -95,7 +95,7 @@ class Solution(object):
         return sm
         '''
         
-        results, final_answer = process_user_query(user_query)
+        results, final_answer, flow_chart_path = process_user_query(user_query)
         
         print("\n--- Results from Each Tool ---")
         for result in results:
