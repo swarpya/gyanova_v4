@@ -14,14 +14,14 @@ AVAILABLE_TOOLS = [
         "name": "deep_web_search",
          "description": "This tool is called if user required  deep web research on a topic and detail information of a topic ",
         "parameters": {
-            "user_query": "string - The search query"
+            "query": "string - The search query"
         }
     },
     {
         "name": "code_execution",
         "description": "This tool is called if user required code execution, code debugging ",
         "parameters": {
-            "user_query": "string - The code for execution or debugging"
+            "query": "string - The code for execution or debugging"
         }
     },
     {
@@ -86,12 +86,12 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "user_query": {
+                    "query": {
                         "type": "string",
                         "description": "The search query",
                     }
                 },
-                "required": ["user_query"],
+                "required": ["query"],
             },
         },
     },
@@ -103,12 +103,12 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "user_query": {
+                    "query": {
                         "type": "string",
                         "description": "The code for execution or debugging",
                     }
                 },
-                "required": ["user_query"],
+                "required": ["query"],
             },
         },
     },

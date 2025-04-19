@@ -62,7 +62,7 @@ def generate_audio(audio: tuple[int, np.ndarray], sample_rate=None):
 
 def main():
     # Determine if we're running in audio mode or text mode
-    audio_mode = os.getenv("AUDIO_MODE", "False").lower() in ["true", "1", "yes"]
+    audio_mode = os.getenv("AUDIO_MODE", "True").lower() in ["true", "1", "yes"]
     
     if audio_mode:
         # Initialize STT and TTS models
@@ -99,7 +99,7 @@ class Solution(object):
         return sm
         '''
         
-        results, final_answer, flow_chart_path = process_user_query(user_query)
+        results, final_answer = process_user_query(user_query)
         
         print("\n--- Results from Each Tool ---")
         for result in results:

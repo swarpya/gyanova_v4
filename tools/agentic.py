@@ -2,14 +2,13 @@ import os
 from groq import Groq
 from dotenv import load_dotenv
 
-def code_execution(user_query: str):
+def code_execution(query: str):
     """
     Send a query to the Groq API and return the response.
     
     Args:
-        user_query (str): The query to send to the Groq API
-        model (str): The model to use (default: "compound-beta")
-    
+        query (str): The query to send to the Groq API
+       
     Returns:
         str: The response content from Groq
     """
@@ -26,7 +25,7 @@ def code_execution(user_query: str):
         messages=[
             {
                 "role": "user",
-                "content": user_query,
+                "content": query,
             }
         ],
         model=model,
@@ -35,16 +34,9 @@ def code_execution(user_query: str):
     # Return just the response content
     return chat_completion.choices[0].message.content
 
-def deep_web_search(user_query: str):
+def deep_web_search(query: str):
     """
-    Send a query to the Groq API and return the response.
-    
-    Args:
-        user_query (str): The query to send to the Groq API
-        model (str): The model to use (default: "compound-beta")
-    
-    Returns:
-        str: The response content from Groq
+    The query to search
     """
     # Load environment variables
     load_dotenv()
@@ -58,7 +50,7 @@ def deep_web_search(user_query: str):
         messages=[
             {
                 "role": "user",
-                "content": user_query,
+                "content": query,
             }
         ],
         model=model,
