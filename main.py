@@ -64,7 +64,7 @@ def main():
         # Audio mode: Set up the real-time communication stream
         print("Starting in audio mode...")
         stream = Stream(ReplyOnPause(process_audio_query), modality="audio", mode="send-receive")
-        # stream.Fastphone()
+        stream.fastphone()
         # The Stream object handles the audio I/O
     else:
         # Text mode: Process a text query directly
