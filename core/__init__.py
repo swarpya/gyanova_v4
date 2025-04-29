@@ -4,3 +4,4 @@ from .config import AVAILABLE_TOOLS, tools, available_functions
 
 # Export main components
 __all__ = ['process_user_query', 'AVAILABLE_TOOLS', 'tools', 'available_functions']
+#done

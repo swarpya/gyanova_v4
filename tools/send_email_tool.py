@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from dotenv import load_dotenv
-
+#done
 load_dotenv()
 
 def send_email(to: str = None, subject: str = None, body: str = None, **kwargs):

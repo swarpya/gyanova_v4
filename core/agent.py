@@ -7,7 +7,7 @@ from core.config import AVAILABLE_TOOLS, tools, available_functions
 
 # Load environment variables
 load_dotenv()
-
+#done
 # Initialize Groq client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")

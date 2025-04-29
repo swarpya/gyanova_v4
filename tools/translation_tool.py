@@ -2,7 +2,7 @@
 import requests
 import time
 import random
-
+#done
 def translate_text(to: str = None, text: str = None, target_language: str = None, source_language: str = "auto", **kwargs):
     """
     Translate text using Google Translate's unofficial API.

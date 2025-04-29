@@ -16,3 +16,4 @@ def web_search(query: str):
     search = GoogleSearch(params)
     results = search.get_dict()
     return results["organic_results"]
+#done
