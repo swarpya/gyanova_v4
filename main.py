@@ -28,10 +28,11 @@ from dotenv import load_dotenv
 #done
 # Load environment variables
 load_dotenv()
-
+if (os.getenv("AUDIO_MODE", "False").lower() in ["true", "1", "yes"]):
 # Initialize STT and TTS models
-stt_model = get_stt_model()
-tts_model = get_tts_model()
+    stt_model = get_stt_model()
+    tts_model = get_tts_model()
+
 
 def process_audio_query(audio):
     """Process audio input using STT, agent system, and TTS for output"""

@@ -1,0 +1,10 @@
+query,expected_tools
+"find what contribution swaroop ingavale has done towards education and if yes send this info to swaroopingavale73@gmail.com","web_search,send_email"
+"Translate in hindi the latest news about INDIA vs PAKISTAN and send it to swaroopingavale73@gmail.com","translate_text,send_email,web_search"
+"Search who is Pradeep Mokashi and if his name is stated as poly then provide his info with name poly","web_search"
+"whats current time in barrie, ontario, canada","findDateTime"
+"Whats current weather in Kolhapur","get_weather"
+"What is the price of Nvidia Stock price on todays date","web_search,findDateTime"
+
+
+
