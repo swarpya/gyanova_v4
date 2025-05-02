@@ -1,12 +1,12 @@
 import os
+import json
+import re
+from typing import List, Dict, Any, Union, Tuple
 from serpapi import GoogleSearch
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-import json
-import re
-from typing import List, Dict, Any, Union
 
 def clean_search_data(data: Union[List[Dict[str, Any]], str]) -> List[Dict[str, Any]]:
     """
@@ -34,13 +34,6 @@ def clean_search_data(data: Union[List[Dict[str, Any]], str]) -> List[Dict[str, 
                 "snippet": entry.get("snippet", "").strip(),
                 "source": entry.get("source", "").strip() if "source" in entry else ""
             }
-            
-            # Extract name if it appears in title or snippet
-            name_match = re.search(r'Swaroop (?:Sanjeev )?Ingavale', 
-                                  clean_entry["title"] + " " + clean_entry["snippet"], 
-                                  re.IGNORECASE)
-            if name_match:
-                clean_entry["name"] = name_match.group(0)
             
             # Add date if available
             if "date" in entry:
@@ -72,11 +65,11 @@ def generate_text_summary(cleaned_data: List[Dict[str, Any]]) -> str:
             return f"ERROR: {entry['error']}"
             
         summary_text += f"TITLE: {entry['title']}\n"
-        if "name" in entry:
-            summary_text += f"NAME: {entry['name']}\n"
         summary_text += f"CONTENT: {entry['snippet']}\n"
         if "date" in entry:
             summary_text += f"DATE: {entry['date']}\n"
+        if "highlighted" in entry:
+            summary_text += f"HIGHLIGHTED: {entry['highlighted']}\n"
         if "additional_info" in entry:
             summary_text += f"INFO: {entry['additional_info']}\n"
         if entry['source']:
@@ -85,36 +78,77 @@ def generate_text_summary(cleaned_data: List[Dict[str, Any]]) -> str:
     
     return summary_text
 
-# Example of how to use with a file
-def process_file(json_string):
+def process_results(data: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], str]:
+    """
+    Process search results to get cleaned data and summary
     
+    Args:
+        data: Raw search results (organic_results)
     
+    Returns:
+        Tuple containing cleaned results and text summary
+    """
     # Clean the data
-    cleaned_results = clean_search_data(json_string)
+    cleaned_results = clean_search_data(data)
+    # print(cleaned_results)
     
     # Generate summary
     summary_text = generate_text_summary(cleaned_results)
     
-    # Save outputs
-    
-    
     return cleaned_results, summary_text
 
-def web_search(query: str):
-    """Search web using query string and return results by analyzing them"""
+def web_search(query: str) -> Dict[str, Any]:
+    """
+    Search web using query string and return cleaned results
+    
+    Args:
+        query: The search query
+        **kwargs: Additional parameters to pass to SerpAPI
+    
+    Returns:
+        Dictionary with search results and metadata
+    """
+    # Set up search parameters
     params = {
         "engine": "google",
         "q": query,
-        "api_key": os.getenv("SERPAPI_API_KEY")
+        "api_key": os.getenv("SERPAPI_API_KEY"),
+
     }
     
+    # Execute search
     search = GoogleSearch(params)
     results = search.get_dict()
-    cleaned_results, summary_text = process_file(results["organic_results"])
-    # print(cleaned_results)
-    # print("/n/n",summary_text)
-    return cleaned_results
+    
+    # Process results if available
+    if "organic_results" in results:
+        cleaned_results, summary = process_results(results["organic_results"])
+        
+        return {
+            # "query": query,
+            # "cleaned_results": cleaned_results,
+            "summary": summary,
+            # "result_count": len(cleaned_results)
+        }
+    else:
+        return {
+            "query": query,
+            "error": "No organic results found",
+            "result_count": 0
+        }
 
-
-
-#done
+# Example usage
+if __name__ == "__main__":
+    # Get search results
+    search_data = web_search("who is swaroop ingavale")
+    
+    # Print summary
+    print(f"Search query: {search_data['query']}")
+    print(f"Found {search_data['result_count']} results")
+    
+    if "error" in search_data:
+        print(f"Error: {search_data['error']}")
+    else:
+        print("\nSUMMARY:")
+        # print(search_data["summary"])
+        
