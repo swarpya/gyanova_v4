@@ -10,7 +10,7 @@ load_dotenv()
 #done
 # Initialize Groq client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+model = os.getenv("GROQ_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
 
 def process_user_query(user_query):
     # Step 1: Ask the model to analyze the query and break it down into subtasks
