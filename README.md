@@ -1,141 +1,173 @@
-# Gyanova v4
+# Gyanova v4 — AI Agent Over a Phone Call
 
-## Authors
-- [Swaroop Ingavale](https://www.linkedin.com/in/swaroop-ingavale-31142619b/)
-- [Pradeep Mokashi](https://www.linkedin.com/in/pradeep-mokashi/)
-
-## How to Add a New Tool
-
-To add a new function to the agent system, follow these steps:
-
-### 1. Create the tool function
-
-Add a new Python file in the `tools` directory (e.g., `tools/calculator_tool.py`) and define your function with proper documentation:
-
-```python
-# tools/calculator_tool.py
-def calculate(expression: str):
-    """Evaluate a mathematical expression and return the result"""
-    try:
-        # Use a safe eval implementation in production
-        return {"result": eval(expression)}
-    except Exception as e:
-        return {"error": str(e)}
-```
-
-### 2. Import the function in `tools/__init__.py`
-
-```python
-from .calculator_tool import calculate
-
-__all__ = ['findDateTime', 'web_search', 'calculate']
-```
-
-### 3. Update `core/config.py` to include the new tool in three places
-
-#### a. Add to `AVAILABLE_TOOLS`:
-```python
-{
-    "name": "calculate",
-    "description": "Evaluate a mathematical expression",
-    "parameters": {
-        "expression": "string - Mathematical expression to evaluate"
-    }
-}
-```
-
-#### b. Add to `tools`:
-```python
-{
-    "type": "function",
-    "function": {
-        "name": "calculate",
-        "description": "Evaluate a mathematical expression",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "expression": {
-                    "type": "string",
-                    "description": "Mathematical expression to evaluate"
-                }
-            },
-            "required": ["expression"]
-        }
-    }
-}
-```
-
-#### c. Add to `available_functions`:
-```python
-"calculate": calculate
-```
-
-### 4. Import the new function in `core/config.py`
-```python
-from tools import findDateTime, web_search, calculate
-```
+**Authors:** [Swaroop Ingavale](https://www.linkedin.com/in/swaroop-ingavale-31142619b/) · [Pradeep Mokashi](https://www.linkedin.com/in/pradeep-mokashi/)
 
 ---
 
-## ✅ Email Tool Setup Instructions
+## The Problem
 
-To enable email functionality, you must configure SMTP credentials in a `.env` file.
+Across conflict zones, censored regions, and infrastructure-poor areas, millions of people are cut off from the internet. Data networks are blocked, restricted, or simply unaffordable. Yet these are often the people who need information the most — real-time weather, safety updates, news, the ability to send a message to a loved one.
 
-### 1. Add SMTP settings to `.env`
-```env
+Smartphones and apps are useless without data. But a basic phone call still works almost everywhere.
+
+---
+
+## The Idea
+
+What if you could call a phone number — a regular voice call, no internet, no app, no smartphone required — and talk to an AI agent?
+
+Ask it the weather. Ask it what's happening in the news. Ask it to send an email on your behalf. Get a spoken answer back, in seconds.
+
+That is Gyanova.
+
+It puts an AI agent on the other end of a phone line. The user needs nothing more than the ability to make a call. All the intelligence, all the data fetching, all the reasoning happens on the server. The phone is just the microphone and speaker.
+
+---
+
+## Who This Is For
+
+- People in conflict zones where internet access is blocked or surveilled
+- Communities in remote areas with no mobile data infrastructure
+- Regions under government-imposed internet shutdowns
+- Anyone with a basic phone and no data plan
+
+---
+
+## How It Works
+
+```
+User (basic phone, no internet)
+        |
+        | regular voice call (PSTN / VoIP)
+        |
+        ▼
+Gyanova Server
+        |
+        ├── STT (Speech-to-Text) — converts voice to text
+        |
+        ├── AI Agent (Groq / Llama 4) — understands the query,
+        |       breaks it into tasks, decides which tools to call
+        |
+        ├── Tools (run on server, all internet-side)
+        |       ├── web_search    — fetches live information
+        |       ├── get_weather   — fetches real-time weather
+        |       ├── findDateTime  — timezone-aware date and time
+        |       ├── send_email    — sends email on user's behalf
+        |       └── translate_text — translates content to user's language
+        |
+        ├── Final Answer — LLM composes a natural spoken response
+        |
+        └── TTS (Text-to-Speech) — speaks the answer back to the user
+```
+
+The user's device does zero computation and zero data. Everything happens on the server. The voice call is the only channel needed.
+
+---
+
+## Example Interactions
+
+"What is the weather in Kabul today?"
+→ Gyanova fetches live weather and reads it back over the call.
+
+"What is happening in the news?"
+→ Gyanova searches the web and summarizes current events in speech.
+
+"Send an email to my brother at this address and tell him I am safe."
+→ Gyanova composes and sends the email, confirms back over the call.
+
+"What time is it in Toronto?"
+→ Gyanova returns the current local time for that timezone.
+
+---
+
+## Technical Stack
+
+| Component | Technology |
+|---|---|
+| Voice I/O | fastrtc (real-time audio streaming) |
+| Speech-to-Text | fastrtc STT model |
+| Text-to-Speech | fastrtc TTS model |
+| AI Reasoning | Groq API — Llama 4 Scout 17B |
+| Web Search | SerpAPI |
+| Weather | Weather API |
+| Email | SMTP / Gmail |
+| Translation | Translation API |
+| Self-extending tools | AgentGenerator (LLM-generated tool code) |
+
+---
+
+## Key Design Decisions
+
+**No data required on the user's end.** The entire system is server-side. The phone call is just the audio interface.
+
+**Multi-step task chaining.** A single query like "get the weather in my city and email it to my sister" is automatically broken into dependent subtasks and executed in sequence.
+
+**Self-extending.** New tools can be added by describing them in plain English. The system writes, registers, and integrates the new tool automatically via `agent_generator.py`.
+
+**Dual mode.** Runs in audio mode (phone/voice) or text mode (terminal) depending on the `AUDIO_MODE` environment variable, making development and testing straightforward.
+
+---
+
+## Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/swarpya/gyanova_v4.git
+cd gyanova_v4
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file:
+
+```dotenv
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+AUDIO_MODE=true
+
 SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASSWORD=your_app_password
 ```
 
-### 2. How to Get a Gmail App Password
-1. Enable 2-Step Verification on your Google account:
-   - Go to https://myaccount.google.com/security
-   - Under "Signing in to Google", enable **2-Step Verification**
+### 4. Run
 
-2. Generate an App Password:
-   - Visit: https://myaccount.google.com/apppasswords
-   - Select "Mail" and your device (or choose "Other")
-   - Click **Generate**, and Google will give you a 16-character password
-   - Use this password in `.env` as `SMTP_PASSWORD`
+```bash
+python main.py
+```
+
+In audio mode, Gyanova starts listening for incoming voice connections. In text mode, it prompts for a typed query.
 
 ---
 
-## Output Example
+## Adding a New Tool
 
-**User Query:** Send email to pradeepmokashi12@gmail.com with subject "Hello" and body "This is a test email."
+Describe what you want in plain English:
 
-**--- Task Breakdown ---**
-```
-[
-  {
-    "tool_name": "send_email",
-    "parameters": {
-      "to": "pradeepmokashi12@gmail.com",
-      "subject": "Hello",
-      "body": "This is a test email."
-    }
-  }
-]
+```bash
+python agent_generator.py "fetch live flight status for a given flight number"
 ```
 
-**--- Executing Tasks Sequentially ---**
-```
-Task 1: Executing send_email with parameters {'to': 'pradeepmokashi12@gmail.com', 'subject': 'Hello', 'body': 'This is a test email.'}
-Result: {'status': 'success', 'message': 'Email sent to pradeepmokashi12@gmail.com'}
-```
+Gyanova will write the tool code, register it in `tools/__init__.py`, and update `core/config.py` automatically. The tool is immediately available to the agent.
 
-**--- Generating Final Response ---**
+---
 
-**--- Results from Each Tool ---**
-```
-Task 1: send_email
-Parameters: {'to': 'pradeepmokashi12@gmail.com', 'subject': 'Hello', 'body': 'This is a test email.'}
-Result: {'status': 'success', 'message': 'Email sent to pradeepmokashi12@gmail.com'}
-```
+## Vision
 
-**--- Final Answer ---**
+Most AI assistants are built for people who already have everything — a smartphone, a data plan, a stable connection. Gyanova is built for everyone else. A phone call is one of the most universally accessible communication channels on the planet. Gyanova puts AI on that channel.
 
-Email successfully sent to pradeepmokashi12@gmail.com with subject "Hello".
+Information should not be a privilege of connectivity.
 
+---
+
+## License
+
+MIT License
